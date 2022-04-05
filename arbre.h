@@ -1,8 +1,8 @@
 #ifndef _ARBRE_H_
 #define _ARBRE_H_
-
+#include "obstacles.h"
 /* A vous de changer cela. */
-typedef int Donnee;
+typedef Obstacle Donnee;
 
 /**
  * Copie une donnée dans une autre. Cette fonction est utile lorsque
@@ -134,5 +134,24 @@ extern void ModifieDroit( Noeud* N, Arbre* SD );
  */
 extern Donnee* Valeur( Noeud* N );
 
+extern Arbre* KDT_Creer( Donnee* T, int i, int j, int a );
 
+/**
+ * Étant donné deux points de données, triez-les par la coordonnée x
+ * 
+ * @param a Le premier paramètre.
+ * @param b le nombre de bacs à utiliser
+ * 
+ * @return Rien.
+ */
+extern int *compare_x(const void *a, const void *b);
+/**
+ * Étant donné deux points de données, triez-les par la coordonnée y
+ * 
+ * @param a Le premier paramètre.
+ * @param b le nombre de bacs à utiliser
+ * 
+ * @return Rien.
+ */
+extern int *compare_y(const void *a, const void *b);
 #endif
