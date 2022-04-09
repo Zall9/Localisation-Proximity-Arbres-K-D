@@ -1,7 +1,7 @@
 #ifndef _ARBRE_H_
 #define _ARBRE_H_
-#include "obstacles.h"
 /* A vous de changer cela. */
+#include "obstacles.h"
 typedef Obstacle Donnee;
 
 /**
@@ -42,7 +42,7 @@ typedef struct SNoeud {
 typedef Noeud Arbre;
 
 
-
+extern int mediane(Donnee *T, int a, int i, int j);
 /**
  * @return l'arbre vide.
  */
@@ -137,21 +137,25 @@ extern Donnee* Valeur( Noeud* N );
 extern Arbre* KDT_Creer( Donnee* T, int i, int j, int a );
 
 /**
- * Étant donné deux points de données, triez-les par la coordonnée x
+ * compare deux points de données en fonction de x et renvoie 1 si le premier est supérieur au second, -1 si le
+ * premier est inférieur au second et 0 s'ils sont égaux.
  * 
- * @param a Le premier paramètre.
- * @param b le nombre de bacs à utiliser
+ * @param a pointeur vers le premier élément à comparer
+ * @param b le nombre d'arbres à construire.
  * 
- * @return Rien.
+ * @return un pointeur sur un entier.
  */
-extern int *compare_x(const void *a, const void *b);
+extern int compare_x(const void *a, const void *b);
 /**
- * Étant donné deux points de données, triez-les par la coordonnée y
+ * compare deux points de données en fonction de y et renvoie 1 si le premier est supérieur au second, -1 si le
+ * premier est inférieur au second et 0 s'ils sont égaux.
  * 
- * @param a Le premier paramètre.
- * @param b le nombre de bacs à utiliser
+ * @param a pointeur vers le premier élément à comparer
+ * @param b le nombre d'arbres à construire.
  * 
- * @return Rien.
+ * @return un pointeur sur un entier.
  */
-extern int *compare_y(const void *a, const void *b);
+extern int compare_y(const void *a, const void *b);
+
+// extern void afficheTab(Donnee *T, int i, int j, int a);
 #endif

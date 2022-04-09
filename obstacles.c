@@ -64,3 +64,4 @@ void TabObstacles_agrandir(TabObstacles *tab)
     tab->taille *= 2;
     tab->obstacles = (Obstacle *)realloc(tab->obstacles, tab->taille * sizeof(Obstacle));
 }
+

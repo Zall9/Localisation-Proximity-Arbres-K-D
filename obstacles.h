@@ -1,7 +1,6 @@
 #include "points.h"
-
 typedef enum { DISQUE } ObstacleType;
- 
+
 typedef struct SObstacle {
   ObstacleType type; //< Le type de l'obstacle. Ici on aura juste des DISQUEs.
   double x[ DIM ];   //< Les coordonnées du centre de l'obstacle.

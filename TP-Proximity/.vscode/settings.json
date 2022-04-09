@@ -1,0 +1,10 @@
+{
+    "docwriter.hotkey.mac": "⌥ + .",
+    "docwriter.language": "French",
+    "files.associations": {
+        "obstacles.h": "c",
+        "particules.h": "c",
+        "random": "c",
+        "math.h": "c"
+    }
+}

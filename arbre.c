@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "arbre.h"
+#include <stdio.h>
 /**
  * Copie une donnée dans une autre. Cette fonction est utile lorsque
  * le type ValType est complexe et que l'opérateur d'affectation du C
@@ -149,10 +150,21 @@ Donnee *Valeur(Noeud *N)
   return &N->data;
 }
 
+/**
+ * Crée un arbre k-d-t à partir d'une liste de points
+ * 
+ * @param T le tableau de points de données
+ * @param i l'indice de début du tableau
+ * @param j le dernier index du tableau
+ * @param a l'axe sur lequel diviser
+ * 
+ * @return Un pointeur vers un Arbre KDT.
+ */
 Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
 {
+  printf("i = %d, j= %d, a=%d \n", i, j, a);
   Arbre *A;
-  Donnee m;
+  int m;
   if (i > j)
   {
     return NULL;
@@ -162,10 +174,12 @@ Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
     A = Creer0(&T[i]);
     return A;
   }
-  m=mediane(T, a,i, j);
-  Creer0(&m);
-  ModifieGauche();
-  ModifieDroit();
+  m = mediane(T, a, i, j);
+  printf("Mediane: %d\n",m);
+  A = Creer0(&T[m]);
+  ModifieGauche(Racine(A), KDT_Creer(T, i, m - 1, (a + 1) % 2));
+  ModifieDroit(Racine(A), KDT_Creer(T, m + 1, j, (a + 1) % 2));
+  return A;
 }
 /**
  * Étant donné une liste de points de données, la fonction renvoie la médiane des points de données
@@ -173,34 +187,34 @@ Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
  * @param a l'axe à trier (0 pour x, 1 pour y)
  * @param i l'indice du premier élément du tableau
  * @param j l'indice du dernier élément du tableau
- * 
+ *
  * @return La médiane de l'ensemble de données.
  */
-Donnee mediane(Donnee *T, int a, int i, int j)
+int mediane(Donnee *T, int a, int i, int j)
 {
   int ind_median;
-  //mediane selon l'axe
+  // mediane selon l'axe
   if (a == 0)
   {
-    qsort(T + j, (j - i) + 1, sizeof(Donnee), compare_x);
+    qsort(T + i, (j - i) + 1, sizeof(Donnee), compare_x);
   }
   if (a == 1)
   {
-    qsort(T + j, (j - i) + 1, sizeof(Donnee), compare_y);
-  }
-  ind_median = (j-i)/2;
-  return T[ind_median];
+    qsort(T + i, (j - i)+1, sizeof(Donnee), compare_y);
+  }  
+  ind_median = (i + j) / 2;
+  return ind_median;
 }
 
-/**
- * Étant donné deux points de données, triez-les par la coordonnée x
- * 
- * @param a Le premier paramètre.
- * @param b le nombre de bacs à utiliser
- * 
- * @return Rien.
- */
-int *compare_x(const void *a, const void *b)
+// void afficheTab(Donnee *T, int i, int j, int a){
+//   for(int k = i; k<=j; k++){
+//     printf("%f\n", T[k].x[a]);
+//   }
+// }
+
+
+
+int compare_x(const void *a, const void *b)
 {
   Donnee *da = (Donnee *)a;
   Donnee *db = (Donnee *)b;
@@ -214,7 +228,7 @@ int *compare_x(const void *a, const void *b)
   }
   return 0;
 }
-int *compare_y(const void *a, const void *b)
+int compare_y(const void *a, const void *b)
 {
   Donnee *da = (Donnee *)a;
   Donnee *db = (Donnee *)b;
