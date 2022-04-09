@@ -202,8 +202,8 @@ void fontaineVariable(Contexte *pCtxt,
 void viewerKDTree(Contexte *pCtxt, cairo_t *cr,
                   Noeud *N, Point bg, Point hd, int a);
 
-void deplaceParticuleV2( Contexte* pCtxt, Particule* p );
-void KDT_PointsDansBoule( TabObstacles* F, Noeud* N, Point* p, double r, int a );
+void deplaceParticuleV2(Contexte *pCtxt, Particule *p);
+void KDT_PointsDansBoule(TabObstacles *F, Noeud *N, Point *p, double r, int a);
 //-----------------------------------------------------------------------------
 // clicks reactions
 //-----------------------------------------------------------------------------
@@ -495,21 +495,33 @@ void calculDynamique(Contexte *pCtxt)
     p->v[1] += (DT / p->m) * p->f[1];
   }
 }
-void deplaceParticuleV2( Contexte* pCtxt, Particule* p )
+void deplaceParticuleV2(Contexte *pCtxt, Particule *p)
 {
-  // Déplace p en supposant qu'il n'y a pas de collision.
+
+  // Point pointObstacle;
+  //  Déplace p en supposant qu'il n'y a pas de collision.
   Point pp;
-  pp.x[ 0 ] = p->x[ 0 ] + DT * p->v[ 0 ];
-  pp.x[ 1 ] = p->x[ 1 ] + DT * p->v[ 1 ];
- 
+  pp.x[0] = p->x[0] + DT * p->v[0];
+  pp.x[1] = p->x[1] + DT * p->v[1];
+
   TabObstacles F; // obstacles potentiels;
-  TabObstacles_init( &F );
-  KDT_PointsDansBoule( &F, Racine( pCtxt->kdtree ), &pp, 0.05, 0 );
-  // On teste si il y a une "vraie" collision dans F 
-  // ...
+  TabObstacles_init(&F);
+  KDT_PointsDansBoule(&F, Racine(pCtxt->kdtree), &pp, 0.05, 0);
+  printf("nb_obstacle_potentiel = %d\n", TabObstacles_nb(&F));
+  // On teste si il y a une "vraie" collision dans F
+  for (int i = 0; i < TabObstacles_nb(&F); i++)
+  {
+    if (distance(p->x[0], p->x[1], F.obstacles[i].x[0], F.obstacles[i].x[1]) < F.obstacles[i].r)
+    {
+      pp.x[0] = F.obstacles[i].x[0];
+      pp.x[1] = F.obstacles[i].x[1];
+      *p = calculRebond(*p, pp, F.obstacles[i].r, F.obstacles[i].att);
+    }
+  }
   // et on déplace le point en fonction
-  // ...
-  TabObstacles_termine( &F ); // pour éviter les fuites mémoire.
+  p->x[0] += DT * p->v[0];
+  p->x[1] += DT * p->v[1];
+  TabObstacles_termine(&F); // pour éviter les fuites mémoire.
 }
 void deplaceParticule(Contexte *pCtxt, Particule *p)
 {
@@ -562,7 +574,7 @@ void deplaceTout(Contexte *pCtxt)
   for (int i = 0; i < n; ++i)
   {
     Particule *p = TabParticules_ref(P, i);
-    deplaceParticule(pCtxt, p);
+    deplaceParticuleV2(pCtxt, p);
   }
   // Détruit les particules trop loin de la zone
   for (int i = 0; i < TabParticules_nb(P);)
@@ -632,6 +644,17 @@ void viewerKDTree(Contexte *pCtxt, cairo_t *cr,
 // désigné par le noeud racine N qui sont à une distance inférieure à
 // r du point p. Le paramètre a désigne l'axe courant (0 ou 1) et
 // change à chaque niveau de récursion.
-void KDT_PointsDansBoule( TabObstacles* F, Noeud* N, Point* p, double r, int a ){
-
+void KDT_PointsDansBoule(TabObstacles *F, Noeud *N, Point *p, double r, int a)
+{
+  Obstacle *q;
+  if (N != NULL)
+  {
+    q = Valeur(N);
+    if (distance(p->x[0], p->x[1], q->x[0], q->x[1]) <= r)
+      TabObstacles_ajoute(F, *q);
+    if (p->x[a] <= q->x[a] + r)
+      KDT_PointsDansBoule(F, Gauche(N), p, r, (a + 1) % 2);
+    if (p->x[a] >= q->x[a] - r)
+      KDT_PointsDansBoule(F, Droit(N), p, r, (a + 1) % 2);
+  }
 }
