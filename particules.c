@@ -3,8 +3,8 @@
 #include <math.h>
 #include "particules.h"
 
-void initParticule( Particule* p, double x, double y, double vx, double vy,
-                double m )
+void initParticule(Particule *p, double x, double y, double vx, double vy,
+                   double m, double r, double g, double b)
 {
   p->x[0] = x;
   p->x[1] = y;
@@ -13,75 +13,77 @@ void initParticule( Particule* p, double x, double y, double vx, double vy,
   p->f[0] = 0.0;
   p->f[1] = 0.0;
   p->m = m;
+  p->r = r;
+  p->g = g;
+  p->b = b;
 }
 
-void TabParticules_init( TabParticules* tab )
+void TabParticules_init(TabParticules *tab)
 {
   tab->taille = 10;
   tab->nb = 0;
-  tab->particules = (Particule*) malloc( tab->taille * sizeof( Particule ) );
+  tab->particules = (Particule *)malloc(tab->taille * sizeof(Particule));
 }
 
-void TabParticules_ajoute( TabParticules* tab, Particule p )
+void TabParticules_ajoute(TabParticules *tab, Particule p)
 {
-  if ( tab->nb == tab->taille )
-    TabParticules_agrandir( tab );
-  tab->particules[ tab->nb++ ] = p;
+  if (tab->nb == tab->taille)
+    TabParticules_agrandir(tab);
+  tab->particules[tab->nb++] = p;
 }
 
-void TabParticules_set( TabParticules* tab, int i, Particule p )
+void TabParticules_set(TabParticules *tab, int i, Particule p)
 {
-  assert ( i < tab->nb );
-  tab->particules[ i ] = p;
+  assert(i < tab->nb);
+  tab->particules[i] = p;
 }
 
-Particule TabParticules_get( TabParticules* tab, int i )
+Particule TabParticules_get(TabParticules *tab, int i)
 {
-  assert ( i < tab->nb );
-  return tab->particules[ i ];
+  assert(i < tab->nb);
+  return tab->particules[i];
 }
 
-Particule* TabParticules_ref( TabParticules* tab, int i )
+Particule *TabParticules_ref(TabParticules *tab, int i)
 {
-  assert ( i < tab->nb );
+  assert(i < tab->nb);
   return tab->particules + i;
 }
 
-int TabParticules_nb( TabParticules* tab )
+int TabParticules_nb(TabParticules *tab)
 {
   return tab->nb;
 }
 
-void TabParticules_termine( TabParticules* tab )
+void TabParticules_termine(TabParticules *tab)
 {
-  if ( tab->particules != NULL ) free( tab->particules );
+  if (tab->particules != NULL)
+    free(tab->particules);
   tab->taille = 0;
   tab->nb = 0;
   tab->particules = NULL;
 }
 
-void TabParticules_agrandir( TabParticules* tab )
+void TabParticules_agrandir(TabParticules *tab)
 {
-  int new_taille = 2*tab->taille;
-  Particule* new_pts = (Particule*) malloc( new_taille * sizeof( Particule ) );
-  for ( int i = 0; i < tab->nb; ++i )
-    new_pts[ i ] = tab->particules[ i ];
-  free( tab->particules );
+  int new_taille = 2 * tab->taille;
+  Particule *new_pts = (Particule *)malloc(new_taille * sizeof(Particule));
+  for (int i = 0; i < tab->nb; ++i)
+    new_pts[i] = tab->particules[i];
+  free(tab->particules);
   tab->particules = new_pts;
   tab->taille = new_taille;
 }
 
-void TabParticules_supprime_dernier( TabParticules* tab )
+void TabParticules_supprime_dernier(TabParticules *tab)
 {
-  assert( tab->nb > 0 );
+  assert(tab->nb > 0);
   --tab->nb;
 }
 
-void TabParticules_supprime( TabParticules* tab, int i )
+void TabParticules_supprime(TabParticules *tab, int i)
 {
-  assert ( i >= 0 );
-  assert ( i < tab->nb );
-  tab->particules[ i ] = tab->particules[ --tab->nb ];
+  assert(i >= 0);
+  assert(i < tab->nb);
+  tab->particules[i] = tab->particules[--tab->nb];
 }
-
-

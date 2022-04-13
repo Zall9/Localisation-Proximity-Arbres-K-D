@@ -233,8 +233,9 @@ int main(int argc,
 gboolean
 on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+
   Obstacle ob;
-  // c'est la réaction principale qui va redessiner tout.
+  // c'est la réaction principale quidrawParticule va redessiner tout.
   Contexte *pCtxt = (Contexte *)data;
   TabParticules *ptrP = &(pCtxt->TabP);
   TabObstacles *ptrO = &(pCtxt->TabO);
@@ -247,9 +248,9 @@ on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
   cairo_set_source_rgb(cr, 1, 1, 1); // choisit le blanc.
   cairo_paint(cr);                   // remplit tout dans la couleur choisie.
   // Affiche tous les points en bleu.
-  cairo_set_source_rgb(cr, 1, 1, 0);
   for (int i = 0; i < TabParticules_nb(ptrP); ++i)
   {
+    cairo_set_source_rgb(cr, TabParticules_get(ptrP, i).r, TabParticules_get(ptrP, i).g, TabParticules_get(ptrP, i).b);
     drawParticule(pCtxt, cr, TabParticules_get(ptrP, i));
   }
 
@@ -406,25 +407,37 @@ double random_range(double min, double max)
 void fontaine(Contexte *pCtxt,
               double p, double x, double y, double vx, double vy, double m)
 {
+  double colorBlue;
+  double colorGreen;
+  double colorRed;
   TabParticules *P = &pCtxt->TabP;
   if ((rand() / (double)RAND_MAX) < p)
   {
+    colorBlue = (double)rand() / (double)RAND_MAX;
+    colorGreen = (double)rand() / (double)RAND_MAX;
+    colorRed = (double)rand() / (double)RAND_MAX;
     Particule q;
-    initParticule(&q, x, y, vx, vy, m);
+    initParticule(&q, x, y, vx, vy, m, colorRed, colorGreen, colorBlue);
     TabParticules_ajoute(P, q);
   }
 }
 
 void fontaineVariable(Contexte *pCtxt, double p, double var, double x, double y, double vx, double vy, double m)
 {
+  double colorBlue;
+  double colorGreen;
+  double colorRed;
   TabParticules *P = &pCtxt->TabP;
   if ((rand() / (double)RAND_MAX) < p)
   {
+    colorBlue = (double)rand() / (double)RAND_MAX;
+    colorGreen = (double)rand() / (double)RAND_MAX;
+    colorRed = (double)rand() / (double)RAND_MAX;
     Particule q;
     vx = random_range((1.0 - var) * vx, (1.0 + var) * vx);
     vy = random_range((1.0 - var) * vy, (1.0 + var) * vy);
     m = random_range((1.0 - var) * m, (1.0 + var) * m);
-    initParticule(&q, x, y, vx, vy, m);
+    initParticule(&q, x, y, vx, vy, m, colorRed, colorGreen, colorBlue);
     TabParticules_ajoute(P, q);
   }
 }
@@ -433,11 +446,17 @@ gint tic(gpointer data)
   Contexte *pCtxt = (Contexte *)data;
   // fontaine(pCtxt, 0.25, -0.5, 0.5, 0.3, 0.3, 2.5);
   fontaineVariable(pCtxt, 0.2, 0.1, -0.5, 0.5, 0.3, 0.3, 1.0);
-  fontaineVariable(pCtxt, 0.25, 0.2, -0.5, 0.5, 0.3, 0.3, 0.5);
-  fontaineVariable(pCtxt, 0.6, 0.18, -0.5, 0.5, 0.3, 0.3, 2.5);
-  fontaineVariable(pCtxt, 0.420, 0.1, -0.5, 0.5, 0.3, 0.3, 1.0);
-  fontaineVariable(pCtxt, 0.15, 0.2, -0.5, 0.5, 0.3, 0.3, 0.5);
   fontaineVariable(pCtxt, 0.9, 0.18, -0.5, 0.5, 0.3, 0.3, 2.5);
+  //fontaines symetrique
+  fontaineVariable(pCtxt, 0.2, 0.1, 0.5, 0.5, -0.3, 0.3, 1.0);
+  fontaineVariable(pCtxt, 0.9, 0.18, 0.5, 0.5, -0.3, 0.3, 2.5);
+  
+
+  fontaineVariable(pCtxt, 0.2, 0.1, 0, -0.5, -0.1, 0.8, 1.0);
+  fontaineVariable(pCtxt, 0.9, 0.18, 0, -0.5, -0.1, 0.8, 2.5);
+
+  fontaineVariable(pCtxt, 0.2, 0.1, 0, -0.5, 0.1, 0.8, 1.0);
+  fontaineVariable(pCtxt, 0.9, 0.18, 0, -0.5, 0.1, 0.8, 2.5);
   calculDynamique(pCtxt);
   deplaceTout(pCtxt);
   g_timeout_add(1000 * DT, tic, (gpointer)pCtxt); // réenclenche le timer.
@@ -507,7 +526,6 @@ void deplaceParticuleV2(Contexte *pCtxt, Particule *p)
   TabObstacles F; // obstacles potentiels;
   TabObstacles_init(&F);
   KDT_PointsDansBoule(&F, Racine(pCtxt->kdtree), &pp, 0.05, 0);
-  printf("nb_obstacle_potentiel = %d\n", TabObstacles_nb(&F));
   // On teste si il y a une "vraie" collision dans F
   for (int i = 0; i < TabObstacles_nb(&F); i++)
   {
